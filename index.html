@@ -1,0 +1,1352 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="auto">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="color-scheme" content="light dark">
+<title>硬件电路学习计划 · 进度追踪</title>
+<style>
+  :root{
+    --bg:#f5f6f8; --card:#ffffff; --text:#16181d; --muted:#6b7280; --line:#e4e6ea;
+    --accent:#2563eb; --accent-soft:#e9f0ff; --accent-text:#1d4ed8;
+    --ok:#0ea472; --ok-soft:#e6f7f1; --warn:#d97706; --warn-soft:#fdf3e3;
+    --tag-theory:#7c3aed; --tag-theory-bg:#f1ebfd;
+    --tag-sim:#0284c7;    --tag-sim-bg:#e5f4fd;
+    --tag-lab:#059669;    --tag-lab-bg:#e4f7f0;
+    --tag-note:#b45309;   --tag-note-bg:#fdf2e3;
+    --radius:14px; --shadow:0 1px 2px rgba(16,24,40,.05), 0 1px 3px rgba(16,24,40,.04);
+  }
+  html[data-theme="dark"]{
+    --bg:#0e1014; --card:#171a20; --text:#e7e9ee; --muted:#969ca8; --line:#282c34;
+    --accent:#5b8dff; --accent-soft:#1b2233; --accent-text:#8aabff;
+    --ok:#34d399; --ok-soft:#14241f; --warn:#fbbf24; --warn-soft:#2a2113;
+    --tag-theory:#b79cf7; --tag-theory-bg:#241d38;
+    --tag-sim:#5cc0f5;    --tag-sim-bg:#132531;
+    --tag-lab:#4fe0ac;    --tag-lab-bg:#12271f;
+    --tag-note:#f0b46a;   --tag-note-bg:#2b2114;
+    --shadow:none;
+  }
+  @media (prefers-color-scheme: dark){
+    html[data-theme="auto"]{
+      --bg:#0e1014; --card:#171a20; --text:#e7e9ee; --muted:#969ca8; --line:#282c34;
+      --accent:#5b8dff; --accent-soft:#1b2233; --accent-text:#8aabff;
+      --ok:#34d399; --ok-soft:#14241f; --warn:#fbbf24; --warn-soft:#2a2113;
+      --tag-theory:#b79cf7; --tag-theory-bg:#241d38;
+      --tag-sim:#5cc0f5;    --tag-sim-bg:#132531;
+      --tag-lab:#4fe0ac;    --tag-lab-bg:#12271f;
+      --tag-note:#f0b46a;   --tag-note-bg:#2b2114;
+      --shadow:none;
+    }
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  body{
+    background:var(--bg); color:var(--text);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;
+    font-size:15px; line-height:1.6; -webkit-text-size-adjust:100%;
+  }
+  a{color:var(--accent-text)}
+  .wrap{max-width:940px;margin:0 auto;padding:0 16px 72px}
+
+  /* ---------- top bar ---------- */
+  .topbar{
+    position:sticky; top:0; z-index:30; background:color-mix(in srgb, var(--bg) 88%, transparent);
+    backdrop-filter:saturate(180%) blur(12px); border-bottom:1px solid var(--line);
+  }
+  .topbar-in{max-width:940px;margin:0 auto;padding:10px 16px;display:flex;align-items:center;gap:10px}
+  .brand{font-weight:700;font-size:15px;letter-spacing:.2px;white-space:nowrap}
+  .brand small{display:block;font-weight:400;font-size:11px;color:var(--muted);letter-spacing:0}
+  .spacer{flex:1}
+  .iconbtn{
+    border:1px solid var(--line); background:var(--card); color:var(--text);
+    border-radius:9px; padding:6px 10px; font-size:12.5px; cursor:pointer; font-family:inherit;
+    white-space:nowrap;
+  }
+  .iconbtn:hover{border-color:var(--accent)}
+  .saveflag{font-size:11.5px;color:var(--muted);min-width:56px;text-align:right}
+
+  /* ---------- hero / dashboard ---------- */
+  .hero{
+    display:grid; grid-template-columns:auto 1fr; gap:22px; align-items:center;
+    background:var(--card); border:1px solid var(--line); border-radius:var(--radius);
+    padding:20px; margin:18px 0 14px; box-shadow:var(--shadow);
+  }
+  .ringbox{position:relative;width:132px;height:132px;flex:none}
+  .ring{width:132px;height:132px;transform:rotate(-90deg);display:block}
+  .ring circle{fill:none;stroke-width:10;stroke-linecap:round}
+  .ring .bg{stroke:var(--line)}
+  .ring .fg{stroke:var(--accent);transition:stroke-dashoffset .5s ease}
+  .ringlabel{
+    position:absolute; inset:0; display:flex; flex-direction:column;
+    align-items:center; justify-content:center; line-height:1.15;
+  }
+  .ringlabel b{font-size:26px;font-weight:700}
+  .ringlabel span{font-size:11px;color:var(--muted)}
+  .stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(112px,1fr));gap:12px}
+  .stat .k{font-size:11.5px;color:var(--muted);letter-spacing:.02em}
+  .stat .v{font-size:19px;font-weight:650;margin-top:1px}
+  .stat .v small{font-size:12px;font-weight:400;color:var(--muted);margin-left:2px}
+  .hero-note{grid-column:1/-1;font-size:12.5px;color:var(--muted);border-top:1px dashed var(--line);padding-top:11px;margin-top:2px}
+  .hero-note b{color:var(--text);font-weight:600}
+
+  /* ---------- generic card ---------- */
+  .card{
+    background:var(--card); border:1px solid var(--line); border-radius:var(--radius);
+    box-shadow:var(--shadow); margin:14px 0; overflow:hidden;
+  }
+  .card-h{
+    display:flex; align-items:center; gap:12px; padding:13px 16px; cursor:pointer;
+    user-select:none; border-bottom:1px solid transparent;
+  }
+  .card-h:hover{background:color-mix(in srgb, var(--accent) 4%, transparent)}
+  .card.open .card-h{border-bottom-color:var(--line)}
+  .chev{color:var(--muted);font-size:11px;transition:transform .18s ease;flex:none;width:12px}
+  .card.open .chev{transform:rotate(90deg)}
+  .card-t{flex:1;min-width:0}
+  .card-t .n{font-weight:650;font-size:14.5px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+  .card-t .p{font-size:11.5px;color:var(--muted);margin-top:1px}
+  .card-b{display:none;padding:14px 16px 18px}
+  .card.open .card-b{display:block}
+
+  .bar{height:7px;border-radius:99px;background:var(--line);overflow:hidden;margin-top:7px}
+  .bar>i{display:block;height:100%;background:var(--accent);border-radius:99px;transition:width .4s ease}
+  .bar.done>i{background:var(--ok)}
+  .pct{font-size:11.5px;color:var(--muted);font-variant-numeric:tabular-nums}
+
+  .goal{font-size:13px;color:var(--muted);margin:0 0 12px}
+  .goal b{color:var(--text);font-weight:600}
+  .pass{
+    font-size:12.5px; background:var(--ok-soft); color:var(--text);
+    border-left:3px solid var(--ok); border-radius:0 8px 8px 0; padding:8px 11px; margin:0 0 14px;
+  }
+  .pass b{color:var(--ok);font-weight:650}
+
+  /* ---------- tasks ---------- */
+  ul.tasks{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:2px}
+  li.task{display:flex;gap:10px;align-items:flex-start;padding:7px 9px;border-radius:9px;cursor:pointer}
+  li.task:hover{background:color-mix(in srgb, var(--accent) 5%, transparent)}
+  li.task .box{
+    flex:none;width:17px;height:17px;margin-top:2px;border:1.6px solid var(--line);
+    border-radius:5px;display:flex;align-items:center;justify-content:center;
+    font-size:11px;color:#fff;background:transparent;transition:all .14s ease;
+  }
+  li.task.on .box{background:var(--ok);border-color:var(--ok)}
+  li.task.on .box::after{content:"✓"}
+  li.task .body{flex:1;min-width:0}
+  li.task .tt{font-size:13.5px;display:flex;align-items:baseline;gap:7px;flex-wrap:wrap}
+  li.task.on .tt{color:var(--muted);text-decoration:line-through;text-decoration-color:color-mix(in srgb,var(--muted) 55%,transparent)}
+  li.task .meta{font-size:11px;color:var(--muted);margin-top:1px}
+  .tag{
+    font-size:10.5px;font-weight:600;padding:1px 6px;border-radius:5px;flex:none;
+    letter-spacing:.02em;
+  }
+  .tag.理论{color:var(--tag-theory);background:var(--tag-theory-bg)}
+  .tag.仿真{color:var(--tag-sim);background:var(--tag-sim-bg)}
+  .tag.动手{color:var(--tag-lab);background:var(--tag-lab-bg)}
+  .tag.记录{color:var(--tag-note);background:var(--tag-note-bg)}
+  .hrs{color:var(--muted);font-size:11px;font-variant-numeric:tabular-nums;flex:none}
+
+  .stage-tools{display:flex;gap:8px;margin:12px 0 0;flex-wrap:wrap}
+  .mini{
+    font-size:11.5px;border:1px solid var(--line);background:transparent;color:var(--muted);
+    border-radius:7px;padding:4px 9px;cursor:pointer;font-family:inherit;
+  }
+  .mini:hover{color:var(--text);border-color:var(--accent)}
+  textarea.note{
+    width:100%;margin-top:10px;background:transparent;color:var(--text);
+    border:1px solid var(--line);border-radius:9px;padding:9px 11px;font-family:inherit;
+    font-size:12.5px;resize:vertical;min-height:56px;line-height:1.55;
+  }
+  textarea.note:focus{outline:none;border-color:var(--accent)}
+  .fieldlabel{font-size:11.5px;color:var(--muted);margin:12px 0 4px;font-weight:600;letter-spacing:.02em}
+
+  /* ---------- nav chips ---------- */
+  .chips{display:flex;gap:7px;flex-wrap:wrap;margin:4px 0 6px}
+  .chip{
+    font-size:12px;border:1px solid var(--line);background:var(--card);color:var(--muted);
+    border-radius:99px;padding:4px 11px;cursor:pointer;font-family:inherit;
+    display:inline-flex;align-items:center;gap:6px;
+  }
+  .chip:hover{border-color:var(--accent);color:var(--text)}
+  .chip .dot{width:6px;height:6px;border-radius:50%;background:var(--line)}
+  .chip.full .dot{background:var(--ok)}
+  .chip.part .dot{background:var(--accent)}
+
+  /* ---------- log ---------- */
+  .logform{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:9px;align-items:end}
+  .logform label{display:block;font-size:11.5px;color:var(--muted);margin-bottom:4px;font-weight:600}
+  input,select,textarea{font-family:inherit;font-size:13px;color:var(--text);background:var(--card);
+    border:1px solid var(--line);border-radius:9px;padding:7px 10px;width:100%}
+  input:focus,select:focus,textarea:focus{outline:none;border-color:var(--accent)}
+  .btn{
+    font-family:inherit;font-size:13px;font-weight:600;border-radius:9px;padding:8px 14px;
+    border:1px solid var(--accent);background:var(--accent);color:#fff;cursor:pointer;white-space:nowrap;
+  }
+  .btn:hover{filter:brightness(1.07)}
+  .btn.ghost{background:transparent;color:var(--text);border-color:var(--line)}
+  .btn.ghost:hover{border-color:var(--accent)}
+  .btn.danger{background:transparent;color:#dc2626;border-color:color-mix(in srgb,#dc2626 35%,transparent)}
+  .logrow{
+    display:flex;gap:11px;align-items:flex-start;padding:9px 2px;border-bottom:1px dashed var(--line);font-size:13px;
+  }
+  .logrow:last-child{border-bottom:none}
+  .logrow .d{color:var(--muted);font-size:12px;flex:none;width:80px;font-variant-numeric:tabular-nums;padding-top:1px}
+  .logrow .c{flex:1;min-width:0}
+  .logrow .n{white-space:pre-wrap;word-break:break-word}
+  .logrow .s{font-size:11.5px;color:var(--muted);margin-top:2px}
+  .xbtn{border:none;background:transparent;color:var(--muted);cursor:pointer;font-size:14px;padding:0 3px;line-height:1}
+  .xbtn:hover{color:#dc2626}
+  .empty{color:var(--muted);font-size:12.5px;padding:10px 2px}
+  .row{display:flex;gap:9px;flex-wrap:wrap;align-items:center}
+  .muted{color:var(--muted);font-size:12px}
+  .hr{border:none;border-top:1px solid var(--line);margin:16px 0}
+  .sync-note{font-size:12.5px;color:var(--muted);background:var(--warn-soft);border-left:3px solid var(--warn);
+    border-radius:0 8px 8px 0;padding:9px 12px;margin-top:12px}
+  .sync-note b{color:var(--text)}
+
+  /* ---------- 云端同步 ---------- */
+  .pill{font-size:11px;font-weight:650;padding:2px 9px;border-radius:99px;border:1px solid var(--line);
+    color:var(--muted);white-space:nowrap;vertical-align:middle}
+  .pill.ok{color:var(--ok);border-color:color-mix(in srgb,var(--ok) 45%,transparent);background:var(--ok-soft)}
+  .pill.err{color:#dc2626;border-color:color-mix(in srgb,#dc2626 45%,transparent)}
+  .pill.busy{color:var(--warn);border-color:color-mix(in srgb,var(--warn) 45%,transparent);background:var(--warn-soft)}
+  .err-text{color:#dc2626}
+  .ok-text{color:var(--ok)}
+  .syncgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:10px}
+  .syncgrid .full{grid-column:1/-1}
+  .syncgrid label{display:block;font-size:11.5px;color:var(--muted);margin-bottom:4px;font-weight:600}
+  details.setup{margin-top:16px;border:1px solid var(--line);border-radius:10px;padding:0 13px}
+  details.setup>summary{cursor:pointer;font-size:13px;font-weight:650;padding:11px 0;list-style:none}
+  details.setup>summary::-webkit-details-marker{display:none}
+  details.setup>summary::before{content:'▸ ';color:var(--muted)}
+  details.setup[open]>summary::before{content:'▾ '}
+  details.setup .inner{padding:0 0 14px;font-size:13px}
+  details.setup ol{margin:6px 0 0;padding-left:20px}
+  details.setup li{margin-bottom:7px}
+  pre.code{background:color-mix(in srgb,var(--text) 7%,transparent);border:1px solid var(--line);
+    border-radius:8px;padding:10px 12px;overflow-x:auto;font-size:11.5px;line-height:1.5;
+    font-family:ui-monospace,SFMono-Regular,Consolas,monospace;white-space:pre;margin:7px 0}
+  .kbd{font-family:ui-monospace,SFMono-Regular,Consolas,monospace;font-size:11.5px;
+    background:color-mix(in srgb,var(--text) 8%,transparent);padding:1px 5px;border-radius:5px;border:1px solid var(--line)}
+  footer{text-align:center;color:var(--muted);font-size:11.5px;padding:26px 16px 34px}
+
+  @media (max-width:620px){
+    .hero{grid-template-columns:1fr;gap:16px;text-align:center;justify-items:center}
+    .stats{width:100%;text-align:left}
+    .brand small{display:none}
+    .saveflag{display:none}
+    li.task .hrs{display:none}
+  }
+  @media print{
+    .topbar,.stage-tools,.logform,.iconbtn,footer{display:none!important}
+    body{background:#fff}
+    .card{break-inside:avoid;box-shadow:none}
+    .card-b{display:block!important}
+  }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="topbar-in">
+    <div class="brand">硬件电路学习计划<small id="brandSub">本地进度 · 自动保存</small></div>
+    <div class="spacer"></div>
+    <span class="saveflag" id="saveflag"></span>
+    <button class="iconbtn" id="btnTheme" title="切换主题">主题</button>
+    <button class="iconbtn" id="btnExport" title="导出进度为 JSON 文件">导出</button>
+    <button class="iconbtn" id="btnImport" title="从 JSON 文件恢复进度">导入</button>
+  </div>
+</div>
+
+<div class="wrap">
+
+  <section class="hero">
+    <div class="ringbox">
+      <svg class="ring" viewBox="0 0 132 132" aria-hidden="true">
+        <circle class="bg" cx="66" cy="66" r="58"></circle>
+        <circle class="fg" id="ringFg" cx="66" cy="66" r="58"></circle>
+      </svg>
+      <div class="ringlabel"><b id="ringPct">0%</b><span>总进度</span></div>
+    </div>
+    <div class="stats">
+      <div class="stat"><div class="k">当前阶段</div><div class="v" id="stCur">—</div></div>
+      <div class="stat"><div class="k">已完成任务</div><div class="v"><span id="stDone">0</span><small id="stTotal">/0</small></div></div>
+      <div class="stat"><div class="k">累计投入</div><div class="v"><span id="stHours">0</span><small>小时</small></div></div>
+      <div class="stat"><div class="k">剩余预计</div><div class="v"><span id="stRemain">0</span><small>小时</small></div></div>
+      <div class="stat"><div class="k">预计学完</div><div class="v" id="stEta">—</div></div>
+      <div class="stat"><div class="k">本周投入</div><div class="v"><span id="stWeek">0</span><small>小时</small></div></div>
+    </div>
+    <div class="hero-note" id="heroNote"></div>
+  </section>
+
+  <div class="chips" id="chips"></div>
+
+  <div id="stages"></div>
+
+  <section class="card open" id="logCard">
+    <div class="card-h" data-toggle="logCard">
+      <span class="chev">▶</span>
+      <div class="card-t">
+        <div class="n">学习日志</div>
+        <div class="p">每周记一条：学了什么 · 卡在哪 · 下次从哪继续。转行面试时这就是你的证据。</div>
+      </div>
+    </div>
+    <div class="card-b">
+      <div class="logform">
+        <div><label for="lgDate">日期</label><input type="date" id="lgDate"></div>
+        <div><label for="lgHours">投入小时</label><input type="number" id="lgHours" min="0.25" step="0.25" value="2"></div>
+        <div><label for="lgStage">阶段</label><select id="lgStage"></select></div>
+        <div><label for="lgNote">内容 / 结论 / 问题</label><input type="text" id="lgNote" placeholder="例：RC 时间常数实测 6.8ms，理论 6.9ms"></div>
+        <div><button class="btn" id="btnAddLog">添加</button></div>
+      </div>
+      <hr class="hr">
+      <div class="row" style="justify-content:space-between;margin-bottom:6px">
+        <span class="muted" id="logSummary">还没有记录</span>
+        <button class="mini" id="btnExportCsv">导出日志 CSV</button>
+      </div>
+      <div id="logList"></div>
+    </div>
+  </section>
+
+  <section class="card" id="syncCard">
+    <div class="card-h" data-toggle="syncCard">
+      <span class="chev">▶</span>
+      <div class="card-t">
+        <div class="n">云端同步 <span class="pill" id="syncPill">未配置</span></div>
+        <div class="p">用你已有的 GitHub 账号同步，不需要注册任何新服务</div>
+      </div>
+    </div>
+    <div class="card-b">
+      <div class="syncgrid">
+        <div class="full">
+          <label for="syToken">GitHub token（只勾了 gist 权限的那一串）</label>
+          <input type="text" id="syToken" placeholder="ghp_xxxxxxxxxxxxxxxxxxxxxxxx" autocomplete="off" spellcheck="false">
+        </div>
+      </div>
+      <div class="row" style="margin-top:13px">
+        <button class="btn" id="btnConnect">连接</button>
+        <button class="btn ghost" id="btnSyncNow">立即同步</button>
+        <button class="btn ghost" id="btnForcePush">本机覆盖云端</button>
+        <button class="btn ghost" id="btnForcePull">云端覆盖本机</button>
+        <button class="btn danger" id="btnDisconnect">断开</button>
+      </div>
+      <div class="muted" id="syncMsg" style="margin-top:11px">还没有配置。点下面的「第一次怎么配置」，照做一遍就行。</div>
+
+      <details class="setup">
+        <summary>第一次怎么配置（约 10 分钟，只做一次）</summary>
+        <div class="inner">
+
+          <p style="margin:2px 0 6px"><b>A. 把页面挂到 GitHub Pages（拿到网址）</b></p>
+          <ol>
+            <li>打开 <span class="kbd">github.com/new</span> 新建仓库，名字填 <span class="kbd">hardware-plan</span>，选 <b>Public</b>，点 Create repository。</li>
+            <li>在仓库页点 <b>Add file → Upload files</b>，把 <span class="kbd">hardware-learning-plan.html</span> 拖进去，<b>上传前把文件名改成 <span class="kbd">index.html</span></b>，然后点 Commit changes。</li>
+            <li>进仓库 <b>Settings → Pages</b>：Source 选 <b>Deploy from a branch</b>，Branch 选 <b>main</b>、目录选 <b>/ (root)</b>，点 Save。</li>
+            <li>等大约 1 分钟，刷新这个 Pages 页面，顶部会出现你的网址，形如
+              <br><span class="kbd">https://你的用户名.github.io/hardware-plan/</span></li>
+          </ol>
+
+          <p style="margin:14px 0 6px"><b>B. 建一个只能读写 Gist 的 token</b></p>
+          <ol>
+            <li>打开 <span class="kbd">github.com/settings/tokens</span> → <b>Generate new token (classic)</b></li>
+            <li>Note 填 <span class="kbd">hw-plan</span>；Expiration 选 <b>No expiration</b>（或 1 年，到期再换）</li>
+            <li><b>只勾最上面那个 gist</b>，其他一个都别勾</li>
+            <li>点 Generate token，复制那串 <span class="kbd">ghp_...</span>（<b>只显示这一次</b>）</li>
+          </ol>
+
+          <p style="margin:14px 0 6px"><b>C. 连接</b></p>
+          <ol>
+            <li>把 token 粘到上面的输入框，点 <b>连接</b>。看到「已同步」就成了。</li>
+            <li>在手机或另一台电脑打开同一个网址，粘同一个 token，点连接 → 进度自动拉下来。</li>
+          </ol>
+
+          <div class="sync-note" style="margin-top:14px">
+            <b>这个 token 等于你 Gist 的钥匙。</b>它只存在你这台设备的浏览器里，不会上传到任何地方，也
+            <b>不要</b>写进仓库、不要发群里。它只有 gist 权限，碰不到你的代码仓库（除了 Gist 什么都干不了）。
+            想作废随时回上面那个页面点 Delete。
+          </div>
+
+        </div>
+      </details>
+    </div>
+  </section>
+
+  <section class="card open" id="setCard">
+    <div class="card-h" data-toggle="setCard">
+      <span class="chev">▶</span>
+      <div class="card-t">
+        <div class="n">设置与数据</div>
+        <div class="p">开始日期、每周投入会直接影响预计完成时间</div>
+      </div>
+    </div>
+    <div class="card-b">
+      <div class="logform">
+        <div><label for="setStart">开始日期</label><input type="date" id="setStart"></div>
+        <div><label for="setWeekly">每周投入（小时）</label><input type="number" id="setWeekly" min="1" max="60" step="1"></div>
+        <div><label for="setName">你的称呼（可空）</label><input type="text" id="setName" placeholder="选填"></div>
+      </div>
+      <div class="sync-note" id="syncNote"></div>
+      <hr class="hr">
+      <div class="row">
+        <button class="btn ghost" id="btnCopy">复制进度 JSON</button>
+        <button class="btn ghost" id="btnPrint">打印 / 存 PDF</button>
+        <button class="btn danger" id="btnReset">清空所有进度</button>
+        <span class="muted" id="storageInfo"></span>
+      </div>
+    </div>
+  </section>
+
+</div>
+
+<footer>
+  单文件应用 · 无需安装 · 进度默认存在本机浏览器，配置云端同步后跟着账号走
+</footer>
+
+<input type="file" id="fileInput" accept=".json,application/json" style="display:none">
+
+<script>
+/* ============================================================
+   硬件电路学习计划 · 进度追踪
+   单文件应用：无外部依赖，可直接双击打开
+   ============================================================ */
+
+var STORAGE_KEY = 'hwplan.v1';
+
+/* ---------------- 计划内容 ---------------- */
+var PLAN = {
+  version: 1,
+  stages: [
+    {
+      id: 's1', name: 'S1 仪器与基础', period: '基础阶段 · 把仪器变成手感',
+      goal: '把欧姆定律、KVL/KCL 变成手上的直觉，并让万用表、示波器、可调电源变成"身体记忆"。',
+      pass: '能用欧姆定律预测电流且实测误差在 10% 以内；能独立完成示波器探头补偿。',
+      tasks: [
+        { id:'s1-1', tag:'仿真', h:3, t:'打开 Falstad 网页仿真，搭电池+开关+LED+电阻，拖滑块观察电流变化' },
+        { id:'s1-2', tag:'动手', h:4, t:'用欧姆定律算出 LED 限流电阻，面包板搭出来，万用表实测电流并算误差' },
+        { id:'s1-3', tag:'动手', h:2, t:'练熟万用表：测电阻、测电压、串入测电流（含正确接法与常见错接）' },
+        { id:'s1-4', tag:'动手', h:4, t:'做分压电路，换不同阻值，体会万用表内阻带来的负载效应' },
+        { id:'s1-5', tag:'动手', h:4, t:'示波器探头补偿校准（用自带方波），练 1X/10X、时基、触发电平、自动测量' },
+        { id:'s1-6', tag:'动手', h:3, t:'可调电源 + 分压电路：先预测再实测，逐点记录误差' },
+        { id:'s1-7', tag:'理论', h:2, t:'读一份电阻和一份 LED 的 datasheet，搞懂关键参数与降额' },
+        { id:'s1-8', tag:'记录', h:2, t:'建立实验记录本，写下 3 条完整记录（电路图 / 预测 / 实测 / 偏差原因）' }
+      ]
+    },
+    {
+      id: 's2', name: 'S2 一阶动态与电源雏形', period: '一阶动态 · 所有滤波与纹波的根',
+      goal: '理解 R、C、L 的时域行为——这是所有滤波、去耦、纹波问题的根。',
+      pass: '能用示波器测出 RC 时间常数并与理论值对上；能解释纹波随负载电流的变化。',
+      tasks: [
+        { id:'s2-1', tag:'动手', h:4, t:'RC 充放电：示波器测时间常数 τ=RC，与理论值对比' },
+        { id:'s2-2', tag:'动手', h:4, t:'RC 微分 / 积分电路，用信号源输入方波看波形变形' },
+        { id:'s2-3', tag:'动手', h:3, t:'去耦电容实验：同一条电源线上加 / 不加电容，看噪声差异' },
+        { id:'s2-4', tag:'动手', h:4, t:'电感与 LC 谐振：观察谐振频率，理解 Q 值' },
+        { id:'s2-5', tag:'动手', h:5, t:'二极管半波 / 全波整流 + 电容滤波，测纹波电压峰峰值' },
+        { id:'s2-6', tag:'理论', h:3, t:'计算纹波与负载电流、电容容量的关系，再实测验证' },
+        { id:'s2-7', tag:'仿真', h:4, t:'LTspice 仿真 RC 与整流电路，和实测结果做对比' },
+        { id:'s2-8', tag:'记录', h:2, t:'整理阶段记录，写下 3 个"我原来想错了"的地方' }
+      ]
+    },
+    {
+      id: 's3', name: 'S3 半导体器件', period: '器件层 · 会算也会用',
+      goal: '二极管、BJT、MOSFET 会算也会用；建立"设计静态工作点"的能力。',
+      pass: '能独立设计一个共射放大电路，实测增益与 -3dB 带宽，并解释失真原因。',
+      tasks: [
+        { id:'s3-1', tag:'动手', h:5, t:'二极管伏安特性：用可调电源 + 电阻逐点测量，画 I-V 曲线' },
+        { id:'s3-2', tag:'动手', h:4, t:'稳压二极管稳压电路，测负载调整率与限流电阻取值' },
+        { id:'s3-3', tag:'动手', h:4, t:'BJT 当开关用：驱动继电器 / LED，算基极电阻与饱和条件' },
+        { id:'s3-4', tag:'理论', h:5, t:'共射放大电路：设计静态工作点，算增益与输入输出阻抗' },
+        { id:'s3-5', tag:'动手', h:7, t:'搭共射放大，信号源 + 示波器实测增益、频响与 -3dB 带宽' },
+        { id:'s3-6', tag:'动手', h:4, t:'调偏置观察削顶失真，记录"什么参数影响了什么"' },
+        { id:'s3-7', tag:'动手', h:4, t:'射极跟随器（缓冲器）：体会高输入阻抗 / 低输出阻抗的意义' },
+        { id:'s3-8', tag:'动手', h:5, t:'MOSFET 开关电路与栅极驱动，对比 BJT 的差异' },
+        { id:'s3-9', tag:'动手', h:5, t:'用三极管 / MOSFET 搭一个恒流源，测电流稳定度' },
+        { id:'s3-10', tag:'记录', h:3, t:'阶段总结：把器件选型的判断依据写成自己的清单' }
+      ]
+    },
+    {
+      id: 's4', name: 'S4 运算放大器', period: '模拟电路最重要的积木',
+      goal: '运放是模拟电路最重要的积木：会算、会选型、会排查振荡。',
+      pass: '能独立完成一个小信号放大电路（麦克风或光电二极管），从设计到实测全程自己做。',
+      tasks: [
+        { id:'s4-1', tag:'动手', h:4, t:'反相放大器：设计增益，实测并与理论对比' },
+        { id:'s4-2', tag:'动手', h:4, t:'同相放大器与电压跟随器，测输入输出阻抗的影响' },
+        { id:'s4-3', tag:'动手', h:3, t:'比较器与迟滞（施密特触发器），用信号源扫出翻转门限' },
+        { id:'s4-4', tag:'动手', h:4, t:'加法器 / 差分放大器，理解共模抑制' },
+        { id:'s4-5', tag:'动手', h:3, t:'积分器与微分器，观察方波 → 三角波的转换' },
+        { id:'s4-6', tag:'理论', h:4, t:'单电源运放与虚地偏置（这是实战中最常踩的坑）' },
+        { id:'s4-7', tag:'理论', h:4, t:'读懂运放 datasheet 关键参数：失调电压、压摆率、GBW、轨到轨、噪声' },
+        { id:'s4-8', tag:'动手', h:8, t:'实战：麦克风放大器 或 光电二极管跨阻放大（选一个做完）' },
+        { id:'s4-9', tag:'记录', h:3, t:'记录振荡 / 自激的排查过程——这是模拟电路的核心功夫' }
+      ]
+    },
+    {
+      id: 's5', name: 'S5 线性电源（关键项目）', period: '关键项目 · 两条路的公共底座',
+      goal: '电源方向的入口，也是信号方向的公共底座：同时练到运放、功率、热与测量。',
+      pass: '做出一个能带载的可调线性电源，并交出一份含负载调整率、纹波、效率、温升的测试报告。',
+      tasks: [
+        { id:'s5-1', tag:'动手', h:5, t:'用 LM317 搭一版可调线性电源作为基线' },
+        { id:'s5-2', tag:'理论', h:4, t:'学习串联型线性稳压原理：基准、取样、误差放大、功率管' },
+        { id:'s5-3', tag:'动手', h:10, t:'用运放 + 功率管搭自己的线性稳压，带限流保护（本阶段核心）' },
+        { id:'s5-4', tag:'动手', h:4, t:'测负载调整率：空载到满载的输出电压变化' },
+        { id:'s5-5', tag:'动手', h:4, t:'测纹波：示波器 AC 耦合 + 带宽限制 + 接地弹簧的正确测法' },
+        { id:'s5-6', tag:'理论', h:3, t:'测效率与功率损耗，算调整管上的功耗' },
+        { id:'s5-7', tag:'动手', h:5, t:'测温升，算散热片热阻需求并验证' },
+        { id:'s5-8', tag:'动手', h:3, t:'过流与短路测试，确认保护真的会动作' },
+        { id:'s5-9', tag:'记录', h:6, t:'写一份完整测试报告（这一份就是简历素材）' },
+        { id:'s5-10', tag:'理论', h:4, t:'分叉决策：对比电源方向与信号方向，确定第二年的主线' }
+      ]
+    },
+    {
+      id: 's6', name: 'S6 数字 · MCU · PCB', period: '从原理图到实物板子的闭环',
+      goal: '打通数字接口与"从原理图到实物板子"的完整闭环。',
+      pass: '自己画的板子打样回来、焊好、上电跑通，并能解释调试中每个问题的定位过程。',
+      tasks: [
+        { id:'s6-1', tag:'动手', h:5, t:'74 系列门电路实验：与或非、触发器，看真值表变成波形' },
+        { id:'s6-2', tag:'动手', h:5, t:'计数器 / 移位寄存器，搭一个简单的时序电路' },
+        { id:'s6-3', tag:'动手', h:8, t:'选一块 MCU（STM32 或 ESP32）：点灯、按键、串口打印' },
+        { id:'s6-4', tag:'动手', h:8, t:'I²C 读写一个传感器（OLED / 温度），用逻辑分析仪抓时序并读懂' },
+        { id:'s6-5', tag:'动手', h:6, t:'SPI 读写一个器件，对比 I²C 的差异与选型场景' },
+        { id:'s6-6', tag:'理论', h:6, t:'学立创 EDA 或 KiCad：画原理图，学会用符号库与封装库' },
+        { id:'s6-7', tag:'动手', h:12, t:'画 PCB：布局、走线、铺铜、过孔、DRC 全流程' },
+        { id:'s6-8', tag:'动手', h:12, t:'打板 + 焊接（含贴片）+ 上电调试（第一次必然有坑）' },
+        { id:'s6-9', tag:'记录', h:6, t:'写调试记录：现象 → 假设 → 验证 → 结论，至少 3 个真实故障' },
+        { id:'s6-10', tag:'理论', h:6, t:'DFM / 量产常识：BOM、封装、可焊性、成本与器件可获得性' }
+      ]
+    },
+    {
+      id: 's7', name: 'S7 分叉：电源 or 信号（第 2 年）', period: '第 2 年 · 选定主线并做出作品',
+      goal: '选定一条主线深入，并完成一个能撑起简历的完整闭环作品。',
+      pass: '有一个"需求 → 原理图 → PCB → 打板 → 焊接 → 调试 → 测试报告"的完整作品。',
+      tasks: [
+        { id:'s7-1', tag:'理论', h:8, t:'【电源】吃透一颗 Buck IC 的 datasheet，逐条读懂每个引脚与参数' },
+        { id:'s7-2', tag:'动手', h:6, t:'【电源】用现成模块起步，测开关节点波形、效率曲线、纹波' },
+        { id:'s7-3', tag:'动手', h:16, t:'【电源】自己画并调通一颗 Buck（如 TPS54xxx / MP1584）' },
+        { id:'s7-4', tag:'理论', h:10, t:'【电源】环路补偿与稳定性（相位裕度、伯德图）' },
+        { id:'s7-5', tag:'理论', h:10, t:'【电源】磁性元件选型与损耗（磁芯、饱和、趋肤效应）' },
+        { id:'s7-6', tag:'理论', h:6, t:'【电源】热设计与降额，画自己的设计裕量表' },
+        { id:'s7-7', tag:'动手', h:10, t:'【电源】EMC 入门：输入滤波、开关回路面积、布局地平面' },
+        { id:'s7-8', tag:'动手', h:10, t:'【信号】信号链前端：放大 + 滤波 + ADC 驱动，测整链噪声' },
+        { id:'s7-9', tag:'动手', h:6, t:'【信号】有源滤波器（Sallen-Key），实测频响与理论对比' },
+        { id:'s7-10', tag:'动手', h:8, t:'【信号】传输线与阻抗匹配，观察振铃与反射' },
+        { id:'s7-11', tag:'动手', h:4, t:'【信号】测上升时间与带宽，验证 BW ≈ 0.35 / tr' },
+        { id:'s7-12', tag:'理论', h:10, t:'【信号】SI/PI 入门：回流路径、地平面、去耦网络' },
+        { id:'s7-13', tag:'理论', h:4, t:'【信号】眼图与抖动初识（用示波器实测一路高速信号）' },
+        { id:'s7-14', tag:'动手', h:30, t:'【作品】完整闭环项目：需求 → 原理图 → PCB → 打板 → 调试 → 测试报告' },
+        { id:'s7-15', tag:'记录', h:10, t:'【求职】面试三类题演练：这个电路怎么工作 / 波形为什么这样 / 出问题怎么查' }
+      ]
+    }
+  ]
+};
+
+/* ---------------- 状态 ---------------- */
+var STAGES = PLAN.stages;
+var ALL_TASKS = [];
+STAGES.forEach(function (s) { s.tasks.forEach(function (t) { ALL_TASKS.push(t); }); });
+var TASK_BY_ID = {};
+ALL_TASKS.forEach(function (t) { TASK_BY_ID[t.id] = t; });
+var TOTAL_HOURS = ALL_TASKS.reduce(function (a, t) { return a + t.h; }, 0);
+
+function todayISO() {
+  var d = new Date();
+  return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+}
+
+var state = {
+  version: 1,
+  startDate: todayISO(),
+  weeklyHours: 5,
+  name: '',
+  done: {},          // taskId -> 'YYYY-MM-DD'
+  notes: {},         // stageId -> text
+  logs: [],          // {id, date, stage, hours, note}
+  theme: 'auto',
+  open: { s1: true },
+  savedAt: ''        // 本机最后一次修改时间，用于和云端比新旧
+};
+
+/* ---------------- 存取 ---------------- */
+var saveTimer = null;
+function save(silent, keepStamp) {
+  if (!keepStamp) state.savedAt = new Date().toISOString();
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    if (!silent) flash('已保存');
+  } catch (e) {
+    flash('保存失败');
+    console.error(e);
+  }
+  if (!keepStamp) schedulePush();
+}
+function saveSoon() {
+  clearTimeout(saveTimer);
+  saveTimer = setTimeout(function () { save(true); }, 400);
+}
+function flash(msg) {
+  var el = document.getElementById('saveflag');
+  if (!el) return;
+  el.textContent = msg;
+  clearTimeout(flash._t);
+  flash._t = setTimeout(function () { el.textContent = ''; }, 1600);
+}
+function load() {
+  try {
+    var raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) return false;
+    var obj = JSON.parse(raw);
+    if (!obj || typeof obj !== 'object') return false;
+    state = Object.assign(state, obj);
+    state.done = state.done || {};
+    state.notes = state.notes || {};
+    state.logs = Array.isArray(state.logs) ? state.logs : [];
+    state.open = state.open || {};
+    return true;
+  } catch (e) {
+    console.error(e);
+    return false;
+  }
+}
+
+/* ---------------- 计算 ---------------- */
+function isDone(id) { return !!state.done[id]; }
+
+function stageStats(stage) {
+  var totH = 0, doneH = 0, tot = stage.tasks.length, done = 0;
+  stage.tasks.forEach(function (t) {
+    totH += t.h;
+    if (isDone(t.id)) { doneH += t.h; done++; }
+  });
+  return { totH: totH, doneH: doneH, remainH: totH - doneH, tot: tot, done: done, pct: totH ? doneH / totH : 0 };
+}
+function overallStats() {
+  var doneH = 0, doneN = 0;
+  ALL_TASKS.forEach(function (t) { if (isDone(t.id)) { doneH += t.h; doneN++; } });
+  return {
+    doneH: doneH, doneN: doneN, totH: TOTAL_HOURS, totN: ALL_TASKS.length,
+    remainH: TOTAL_HOURS - doneH, pct: TOTAL_HOURS ? doneH / TOTAL_HOURS : 0
+  };
+}
+function currentStage() {
+  for (var i = 0; i < STAGES.length; i++) {
+    var st = stageStats(STAGES[i]);
+    if (st.pct < 1) return STAGES[i];
+  }
+  return STAGES[STAGES.length - 1];
+}
+function loggedHours() {
+  return state.logs.reduce(function (a, l) { return a + (Number(l.hours) || 0); }, 0);
+}
+function weekHours() {
+  var now = new Date();
+  var day = (now.getDay() + 6) % 7;             // 周一为一周开始
+  var monday = new Date(now.getFullYear(), now.getMonth(), now.getDate() - day);
+  var total = 0;
+  state.logs.forEach(function (l) {
+    var d = new Date(l.date + 'T00:00:00');
+    if (!isNaN(d) && d >= monday) total += Number(l.hours) || 0;
+  });
+  return total;
+}
+function addWeeks(weeks) {
+  var d = new Date();
+  d.setDate(d.getDate() + Math.round(weeks * 7));
+  return d;
+}
+function fmtDate(d) {
+  return (d.getMonth() + 1) + '月' + d.getDate() + '日';
+}
+function estimate() {
+  var weekly = Math.max(1, Number(state.weeklyHours) || 5);
+  var cum = 0, perStage = {};
+  STAGES.forEach(function (s) {
+    var st = stageStats(s);
+    cum += st.remainH;
+    perStage[s.id] = cum / weekly;
+  });
+  return { perStage: perStage, totalWeeks: cum / weekly, finish: addWeeks(cum / weekly) };
+}
+
+/* ---------------- 渲染 ---------------- */
+function esc(s) {
+  return String(s == null ? '' : s)
+    .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+}
+
+function renderHero() {
+  var o = overallStats();
+  var est = estimate();
+  var cur = currentStage();
+  var C = 2 * Math.PI * 58;
+
+  var fg = document.getElementById('ringFg');
+  fg.setAttribute('stroke-dasharray', C.toFixed(1));
+  fg.setAttribute('stroke-dashoffset', (C * (1 - o.pct)).toFixed(1));
+  document.getElementById('ringPct').textContent = Math.round(o.pct * 100) + '%';
+
+  document.getElementById('stCur').textContent = o.pct >= 1 ? '全部完成' : cur.name.split(' ')[0];
+  document.getElementById('stDone').textContent = o.doneN;
+  document.getElementById('stTotal').textContent = '/' + o.totN;
+  document.getElementById('stHours').textContent = (Math.round(loggedHours() * 10) / 10);
+  document.getElementById('stRemain').textContent = est.totalWeeks > 0 ? Math.round(o.remainH) : 0;
+  document.getElementById('stEta').textContent = o.pct >= 1 ? '已完成' : fmtDate(est.finish);
+  document.getElementById('stWeek').textContent = Math.round(weekHours() * 10) / 10;
+
+  var weekly = Math.max(1, Number(state.weeklyHours) || 5);
+  var note = document.getElementById('heroNote');
+  var nm = state.name ? esc(state.name) + '，' : '';
+  if (o.pct >= 1) {
+    note.innerHTML = nm + '<b>计划全部完成。</b>接下来把两个闭环作品打磨成能讲 20 分钟的项目。';
+  } else {
+    note.innerHTML = nm + '按每周 <b>' + weekly + ' 小时</b>估算，剩余 <b>' + Math.round(o.remainH) +
+      ' 小时</b>，约 <b>' + Math.ceil(est.totalWeeks) + ' 周</b> 后走完主线（预计 <b>' + fmtDate(est.finish) +
+      '</b>）。已完成 ' + Math.round(o.doneH) + ' / ' + TOTAL_HOURS + ' 小时的内容。';
+  }
+}
+
+function renderChips() {
+  var est = estimate();
+  var box = document.getElementById('chips');
+  box.innerHTML = STAGES.map(function (s) {
+    var st = stageStats(s);
+    var cls = st.pct >= 1 ? 'full' : (st.pct > 0 ? 'part' : '');
+    var label = s.name.split(' ')[0] + (st.pct < 1 ? ' · ' + Math.ceil(est.perStage[s.id]) + '周' : '');
+    return '<button class="chip ' + cls + '" data-jump="' + s.id + '"><span class="dot"></span>' + esc(label) + '</button>';
+  }).join('');
+}
+
+function renderStages() {
+  var est = estimate();
+  var weekly = Math.max(1, Number(state.weeklyHours) || 5);
+  var host = document.getElementById('stages');
+  host.innerHTML = STAGES.map(function (s) {
+    var st = stageStats(s);
+    var open = state.open[s.id];
+    var tasks = s.tasks.map(function (t) {
+      var on = isDone(t.id);
+      var when = on && state.done[t.id] ? ' · ' + state.done[t.id] : '';
+      return '<li class="task ' + (on ? 'on' : '') + '" data-task="' + t.id + '">' +
+        '<span class="box"></span>' +
+        '<span class="body">' +
+          '<span class="tt"><span class="tag ' + esc(t.tag) + '">' + esc(t.tag) + '</span>' +
+          '<span>' + esc(t.t) + '</span></span>' +
+          '<span class="meta">' + (t.h) + ' 小时' + esc(when) + '</span>' +
+        '</span>' +
+        '<span class="hrs">' + t.h + 'h</span>' +
+      '</li>';
+    }).join('');
+
+    var etaTxt = st.pct >= 1 ? '已完成' : ('预计 ' + fmtDate(addWeeks(est.perStage[s.id])) + ' 完成');
+
+    return '<section class="card ' + (open ? 'open' : '') + '" id="card-' + s.id + '">' +
+      '<div class="card-h" data-toggle="card-' + s.id + '">' +
+        '<span class="chev">▶</span>' +
+        '<div class="card-t">' +
+          '<div class="n">' + esc(s.name) + '</div>' +
+          '<div class="p">' + esc(s.period) + ' · 约 ' + st.totH + ' 小时 / ' + Math.ceil(st.totH / weekly) + ' 周 · 已完成 ' + st.done + '/' + st.tot + ' 项 · ' + etaTxt + '</div>' +
+          '<div class="bar ' + (st.pct >= 1 ? 'done' : '') + '"><i style="width:' + Math.round(st.pct * 100) + '%"></i></div>' +
+        '</div>' +
+        '<span class="pct">' + Math.round(st.pct * 100) + '%</span>' +
+      '</div>' +
+      '<div class="card-b">' +
+        '<p class="goal"><b>目标：</b>' + esc(s.goal) + '</p>' +
+        '<p class="pass"><b>过关标准：</b>' + esc(s.pass) + '</p>' +
+        '<ul class="tasks">' + tasks + '</ul>' +
+        '<div class="stage-tools">' +
+          '<button class="mini" data-all="' + s.id + '">全部勾选</button>' +
+          '<button class="mini" data-none="' + s.id + '">取消本阶段</button>' +
+        '</div>' +
+        '<div class="fieldlabel">我的备注（卡在哪 / 心得）</div>' +
+        '<textarea class="note" data-note="' + s.id + '" placeholder="例：示波器触发一直不稳，后来发现是探头地线太长……">' +
+          esc(state.notes[s.id] || '') +
+        '</textarea>' +
+      '</div>' +
+    '</section>';
+  }).join('');
+}
+
+function renderLogs() {
+  var host = document.getElementById('logList');
+  var list = state.logs.slice().sort(function (a, b) { return (b.date || '').localeCompare(a.date || ''); });
+  if (!list.length) {
+    host.innerHTML = '<div class="empty">还没有记录。第一次动手实验结束后来记一条。</div>';
+  } else {
+    host.innerHTML = list.map(function (l) {
+      var stageName = '';
+      var s = STAGES.filter(function (x) { return x.id === l.stage; })[0];
+      if (s) stageName = s.name.split(' ')[0] + ' · ';
+      return '<div class="logrow">' +
+        '<span class="d">' + esc(l.date || '') + '</span>' +
+        '<span class="c">' +
+          '<span class="n">' + esc(l.note || '（无内容）') + '</span>' +
+          '<span class="s">' + stageName + (Number(l.hours) || 0) + ' 小时</span>' +
+        '</span>' +
+        '<button class="xbtn" data-del="' + l.id + '" title="删除">×</button>' +
+      '</div>';
+    }).join('');
+  }
+  var total = loggedHours();
+  var n = state.logs.length;
+  document.getElementById('logSummary').textContent =
+    n ? (n + ' 条记录 · 累计 ' + (Math.round(total * 10) / 10) + ' 小时 · 本周 ' + (Math.round(weekHours() * 10) / 10) + ' 小时') : '还没有记录';
+}
+
+function renderSettings() {
+  document.getElementById('setStart').value = state.startDate || todayISO();
+  document.getElementById('setWeekly').value = state.weeklyHours || 5;
+  document.getElementById('setName').value = state.name || '';
+  var bytes = 0;
+  try { bytes = (localStorage.getItem(STORAGE_KEY) || '').length; } catch (e) { bytes = 0; }
+  document.getElementById('storageInfo').textContent = '当前数据约 ' + (bytes / 1024).toFixed(1) + ' KB';
+}
+
+function renderSyncNote() {
+  var hosted = location.protocol === 'http:' || location.protocol === 'https:';
+  var el = document.getElementById('syncNote');
+  if (!el) return;
+  var html2;
+  if (syncConnected()) {
+    html2 = '<b>云端同步已开启。</b>进度存在你自己的 GitHub 私密 Gist 里，跟着 token 走——换任何设备，' +
+      '打开同一个网址并连接同一个 token，看到的就是同一份进度。' +
+      (hosted ? '' : '（你现在是双击本地文件打开的，同步一样能用；但挂到网址上手机更方便。）');
+  } else if (syncHasToken()) {
+    html2 = '<b>token 已填好，但还没连上。</b>往上翻到「云端同步」，点一下「连接」。';
+  } else if (hosted) {
+    html2 = '<b>已通过网址打开，但还没接云端。</b>往上翻到「云端同步」，按里面的步骤配一次，' +
+      '进度就能在手机和电脑之间自动同步。在那之前，请用「导出 / 导入」在设备之间搬运。';
+  } else {
+    html2 = '<b>你现在是双击本地文件打开的（地址栏是 file://）。</b>' +
+      '进度只存在这台电脑的这个浏览器里。往上翻到「云端同步」按步骤配置一次，' +
+      '进度就会存到你的 GitHub 私有 Gist、跟着 token 走。那之前请用「导出」定期备份。';
+  }
+  el.innerHTML = html2;
+}
+
+function renderAll() {
+  renderHero();
+  renderChips();
+  renderStages();
+  renderLogs();
+  renderSettings();
+  renderSyncNote();
+}
+
+/* ---------------- 交互 ---------------- */
+function toggleTask(id) {
+  if (state.done[id]) delete state.done[id];
+  else state.done[id] = todayISO();
+  saveSoon();
+  renderHero(); renderChips(); renderStages();
+}
+
+function setStageAll(stageId, on) {
+  var s = STAGES.filter(function (x) { return x.id === stageId; })[0];
+  if (!s) return;
+  s.tasks.forEach(function (t) {
+    if (on) { if (!state.done[t.id]) state.done[t.id] = todayISO(); }
+    else delete state.done[t.id];
+  });
+  saveSoon();
+  renderHero(); renderChips(); renderStages();
+}
+
+document.addEventListener('click', function (e) {
+  var t = e.target;
+  if (!t || !t.closest) return;
+
+  var taskLi = t.closest('li.task');
+  if (taskLi) { toggleTask(taskLi.getAttribute('data-task')); return; }
+
+  var head = t.closest('[data-toggle]');
+  if (head) {
+    var card = document.getElementById(head.getAttribute('data-toggle'));
+    if (card) {
+      card.classList.toggle('open');
+      var id = card.id.replace('card-', '');
+      if (STAGES.some(function (s) { return s.id === id; })) {
+        state.open[id] = card.classList.contains('open');
+        saveSoon();
+      }
+    }
+    return;
+  }
+
+  var jump = t.closest('[data-jump]');
+  if (jump) {
+    var sid = jump.getAttribute('data-jump');
+    var el = document.getElementById('card-' + sid);
+    if (el) {
+      el.classList.add('open');
+      state.open[sid] = true; saveSoon();
+      el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+    return;
+  }
+
+  var allBtn = t.closest('[data-all]');
+  if (allBtn) { setStageAll(allBtn.getAttribute('data-all'), true); return; }
+  var noneBtn = t.closest('[data-none]');
+  if (noneBtn) { setStageAll(noneBtn.getAttribute('data-none'), false); return; }
+
+  var del = t.closest('[data-del]');
+  if (del) {
+    var lid = del.getAttribute('data-del');
+    state.logs = state.logs.filter(function (l) { return String(l.id) !== String(lid); });
+    saveSoon(); renderHero(); renderLogs(); renderSettings();
+    return;
+  }
+});
+
+document.addEventListener('input', function (e) {
+  var t = e.target;
+  if (!t || !t.getAttribute) return;
+  var nid = t.getAttribute('data-note');
+  if (nid) { state.notes[nid] = t.value; saveSoon(); }
+});
+
+function addLog() {
+  var date = document.getElementById('lgDate').value || todayISO();
+  var hours = Number(document.getElementById('lgHours').value) || 0;
+  var stage = document.getElementById('lgStage').value;
+  var note = document.getElementById('lgNote').value.trim();
+  if (!hours && !note) { flash('填点内容'); return; }
+  state.logs.push({ id: String(Date.now()) + Math.random().toString(36).slice(2, 6), date: date, hours: hours, stage: stage, note: note });
+  document.getElementById('lgNote').value = '';
+  save();
+  renderHero(); renderLogs(); renderSettings();
+}
+
+/* ---------------- 导入导出 ---------------- */
+function download(name, text, mime) {
+  var blob = new Blob([text], { type: mime || 'application/json;charset=utf-8' });
+  var url = URL.createObjectURL(blob);
+  var a = document.createElement('a');
+  a.href = url; a.download = name;
+  document.body.appendChild(a); a.click();
+  setTimeout(function () { document.body.removeChild(a); URL.revokeObjectURL(url); }, 0);
+}
+function exportJSON() {
+  var payload = JSON.stringify(state, null, 2);
+  download('硬件学习进度-' + todayISO() + '.json', payload);
+  flash('已导出');
+}
+function exportCSV() {
+  var rows = [['日期', '阶段', '小时', '内容']];
+  state.logs.slice().sort(function (a, b) { return (a.date || '').localeCompare(b.date || ''); })
+    .forEach(function (l) {
+      var s = STAGES.filter(function (x) { return x.id === l.stage; })[0];
+      rows.push([l.date || '', s ? s.name : '', l.hours || 0, l.note || '']);
+    });
+  var csv = '\uFEFF' + rows.map(function (r) {
+    return r.map(function (c) { return '"' + String(c).replace(/"/g, '""') + '"'; }).join(',');
+  }).join('\r\n');
+  download('硬件学习日志-' + todayISO() + '.csv', csv, 'text/csv;charset=utf-8');
+}
+function importJSON(file) {
+  var r = new FileReader();
+  r.onload = function () {
+    try {
+      var obj = JSON.parse(r.result);
+      if (!obj || typeof obj !== 'object') throw new Error('格式不对');
+      state = Object.assign({ version: 1, startDate: todayISO(), weeklyHours: 5, name: '', done: {}, notes: {}, logs: [], theme: 'auto', open: {} }, obj);
+      state.done = state.done || {}; state.notes = state.notes || {};
+      state.logs = Array.isArray(state.logs) ? state.logs : [];
+      save(); renderAll();
+      alert('导入成功：已完成 ' + overallStats().doneN + ' 项任务。');
+    } catch (err) {
+      alert('导入失败：' + err.message);
+    }
+  };
+  r.readAsText(file);
+}
+function copyJSON() {
+  var text = JSON.stringify(state);
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(text).then(function () { flash('已复制'); }, function () { fallbackCopy(text); });
+  } else fallbackCopy(text);
+}
+function fallbackCopy(text) {
+  var ta = document.createElement('textarea');
+  ta.value = text; ta.style.position = 'fixed'; ta.style.opacity = '0';
+  document.body.appendChild(ta); ta.select();
+  try { document.execCommand('copy'); flash('已复制'); } catch (e) { flash('复制失败'); }
+  document.body.removeChild(ta);
+}
+function applyTheme() {
+  document.documentElement.setAttribute('data-theme', state.theme || 'auto');
+}
+
+/* ============================================================
+   云端同步：把进度存进你自己的一个 GitHub 私密 Gist。
+   只用 GitHub 一个账号，不注册任何新服务，也不引入第三方库。
+   断网 / 未连接时整套逻辑静默跳过，本地功能完全不受影响。
+   ============================================================ */
+var SYNC_KEY = 'hwplan.sync.v2';
+var GIST_FILE = 'hardware-plan-progress.json';
+var GIST_DESC = '硬件电路学习计划 · 进度（此文件由学习计划页面自动读写，请勿手改）';
+var GH_API = 'https://api.github.com';
+
+var sync = {
+  token: '', gistId: '', user: '',
+  lastSync: '', lastError: '', busy: false
+};
+var pushTimer = null;
+
+function loadSync() {
+  try {
+    var raw = localStorage.getItem(SYNC_KEY);
+    if (!raw) return;
+    var o = JSON.parse(raw) || {};
+    sync.token = o.token || '';
+    sync.gistId = o.gistId || '';
+    sync.user = o.user || '';
+    sync.lastSync = o.lastSync || '';
+    // 兼容上一版的 Supabase 配置：清掉，避免残留
+    try { localStorage.removeItem('hwplan.sync.v1'); } catch (e2) {}
+  } catch (e) { console.error(e); }
+}
+function saveSync() {
+  try {
+    localStorage.setItem(SYNC_KEY, JSON.stringify({
+      token: sync.token, gistId: sync.gistId, user: sync.user, lastSync: sync.lastSync
+    }));
+  } catch (e) { console.error(e); }
+}
+function syncHasToken() { return !!sync.token; }
+function syncConnected() { return !!(sync.token && sync.gistId); }
+
+function ghError(data, status) {
+  var m = (data && typeof data === 'object' && (data.message || data.error)) || '';
+  if (status === 401) return 'token 无效或已被撤销，请去 GitHub 重新生成一个';
+  if (status === 403) return '权限不够：生成 token 时必须勾上 gist' + (m ? '（' + m + '）' : '');
+  if (status === 404) return '找不到那个 Gist，可能已经被删掉了';
+  if (status === 422) return 'GitHub 拒绝了这次写入' + (m ? '：' + m : '');
+  return m || ('HTTP ' + status);
+}
+
+async function gh(path, opts) {
+  opts = opts || {};
+  var headers = Object.assign({
+    'Accept': 'application/vnd.github+json',
+    'X-GitHub-Api-Version': '2022-11-28'
+  }, opts.headers || {});
+  if (sync.token) headers['Authorization'] = 'Bearer ' + sync.token;
+  if (opts.body !== undefined) headers['Content-Type'] = 'application/json';
+
+  var res;
+  try {
+    res = await fetch(GH_API + path, {
+      method: opts.method || 'GET',
+      headers: headers,
+      body: opts.body === undefined ? undefined : JSON.stringify(opts.body)
+    });
+  } catch (e) {
+    throw new Error('连不上 GitHub（网络问题或被墙）');
+  }
+  var text = await res.text();
+  var data = null;
+  if (text) { try { data = JSON.parse(text); } catch (e) { data = text; } }
+  if (!res.ok) {
+    var err = new Error(ghError(data, res.status));
+    err.status = res.status;
+    throw err;
+  }
+  return data;
+}
+
+/* 校验 token，并找出（或准备新建）那个 Gist */
+async function ghHandshake() {
+  var list = await gh('/gists?per_page=100');
+  if (!Array.isArray(list)) throw new Error('GitHub 返回格式异常，token 可能不对');
+
+  var found = null;
+  if (sync.gistId) {
+    for (var i = 0; i < list.length; i++) if (list[i].id === sync.gistId) { found = list[i]; break; }
+  }
+  if (!found) {
+    for (var j = 0; j < list.length; j++) if (list[j].description === GIST_DESC) { found = list[j]; break; }
+  }
+  if (found) {
+    sync.gistId = found.id;
+    sync.user = (found.owner && found.owner.login) || sync.user;
+  } else {
+    sync.gistId = '';                       // 还没有，第一次同步时创建
+    sync.user = (list[0] && list[0].owner && list[0].owner.login) || '';
+  }
+  saveSync();
+}
+
+async function ghPull() {
+  if (!sync.gistId) return null;
+  var g = await gh('/gists/' + sync.gistId);
+  var f = g && g.files && g.files[GIST_FILE];
+  if (!f) return null;
+  var content = f.content;
+  if (!content && f.raw_url) {
+    var res = await fetch(f.raw_url);
+    content = await res.text();
+  }
+  if (!content) return null;
+  try { return JSON.parse(content); }
+  catch (e) { throw new Error('云端数据格式坏了，请用「本机覆盖云端」修一下'); }
+}
+
+async function ghPush(payload) {
+  var body = { files: {} };
+  body.files[GIST_FILE] = { content: JSON.stringify(payload) };
+  if (sync.gistId) {
+    await gh('/gists/' + sync.gistId, { method: 'PATCH', body: body });
+  } else {
+    body.description = GIST_DESC;
+    body.public = false;
+    var g = await gh('/gists', { method: 'POST', body: body });
+    sync.gistId = g.id;
+    sync.user = (g.owner && g.owner.login) || sync.user;
+    saveSync();
+  }
+}
+
+/* 云端数据落地到本机：不打新时间戳，也不再回传，避免来回打架 */
+function adoptCloud(cloud) {
+  var keepTheme = state.theme, keepOpen = state.open;
+  state = Object.assign({ version: 1, startDate: todayISO(), weeklyHours: 5, name: '' }, cloud);
+  state.done = state.done || {};
+  state.notes = state.notes || {};
+  state.logs = Array.isArray(state.logs) ? state.logs : [];
+  state.open = state.open || keepOpen || {};
+  if (!state.theme) state.theme = keepTheme || 'auto';
+  save(true, true);
+  applyTheme();
+  renderAll();
+}
+
+/* 主同步：拉下来比时间戳，谁新用谁 */
+async function syncNow(quiet) {
+  if (sync.busy) return;
+  if (!syncHasToken()) {
+    if (!quiet) setSyncMsg('先把 GitHub token 填到上面，点「连接」');
+    return;
+  }
+  sync.busy = true; sync.lastError = ''; renderSync();
+  try {
+    if (!sync.gistId) await ghHandshake();
+    var cloud = await ghPull();
+    var localAt = state.savedAt || '';
+    var cloudAt = (cloud && cloud.savedAt) || '';
+    if (cloud && cloudAt > localAt) {
+      adoptCloud(cloud);
+      setSyncMsg('已从云端更新（云端较新）', 'ok');
+    } else if (localAt > cloudAt) {
+      await ghPush(state);
+      setSyncMsg('已上传本机进度（本机较新）', 'ok');
+    } else if (!cloud) {
+      await ghPush(state);
+      setSyncMsg('云端还没有记录，已把本机进度存上去', 'ok');
+    } else {
+      setSyncMsg('两边一致，无需同步', 'ok');
+    }
+    sync.lastSync = new Date().toISOString();
+    saveSync();
+  } catch (e) {
+    sync.lastError = e.message || String(e);
+    setSyncMsg('同步失败：' + sync.lastError, 'err');
+    if (e.status === 401) { sync.gistId = ''; saveSync(); }
+  } finally {
+    sync.busy = false;
+    renderSync();
+  }
+}
+
+async function forcePush() {
+  if (!syncHasToken()) { setSyncMsg('先填 token 并点「连接」', 'err'); return; }
+  sync.busy = true; renderSync();
+  try {
+    if (!sync.gistId) await ghHandshake();
+    await ghPush(state);
+    sync.lastSync = new Date().toISOString(); sync.lastError = ''; saveSync();
+    setSyncMsg('已用本机进度覆盖云端', 'ok');
+  } catch (e) {
+    sync.lastError = e.message; setSyncMsg('失败：' + e.message, 'err');
+  } finally { sync.busy = false; renderSync(); }
+}
+
+async function forcePull() {
+  if (!syncConnected()) { setSyncMsg('先连接一次再来', 'err'); return; }
+  if (!confirm('用云端进度覆盖本机？本机还没同步上去的改动会丢失。')) return;
+  sync.busy = true; renderSync();
+  try {
+    var cloud = await ghPull();
+    if (!cloud) { setSyncMsg('云端还没有记录', 'err'); }
+    else {
+      adoptCloud(cloud);
+      sync.lastSync = new Date().toISOString(); sync.lastError = ''; saveSync();
+      setSyncMsg('已用云端进度覆盖本机', 'ok');
+    }
+  } catch (e) {
+    sync.lastError = e.message; setSyncMsg('失败：' + e.message, 'err');
+  } finally { sync.busy = false; renderSync(); }
+}
+
+function schedulePush() {
+  if (!syncConnected()) return;
+  clearTimeout(pushTimer);
+  pushTimer = setTimeout(function () { syncNow(true); }, 2500);
+}
+
+function setSyncMsg(html, kind) {
+  var el = document.getElementById('syncMsg');
+  if (!el) return;
+  el.innerHTML = kind === 'err' ? '<span class="err-text">' + esc(html) + '</span>'
+    : kind === 'ok' ? '<span class="ok-text">' + esc(html) + '</span>'
+    : esc(html);
+}
+
+function renderSync() {
+  var pill = document.getElementById('syncPill');
+  var msg = document.getElementById('syncMsg');
+  if (!pill || !msg) return;
+
+  var cls = '', txt = '';
+  if (sync.busy) { cls = 'busy'; txt = '同步中…'; }
+  else if (!syncHasToken()) { txt = '未配置'; }
+  else if (!sync.gistId) { txt = '未连接'; }
+  else if (sync.lastError) { cls = 'err'; txt = '同步异常'; }
+  else if (sync.lastSync) { cls = 'ok'; txt = '已同步'; }
+  else { txt = '已连接'; }
+  pill.className = 'pill ' + cls;
+  pill.textContent = txt;
+
+  if (sync.busy || sync.lastError) return;   // 这两种情况消息由操作函数负责写
+
+  var parts = [];
+  if (!syncHasToken()) {
+    parts.push('还没有配置。点下面的「第一次怎么配置」，照做一遍就行。');
+  } else if (!sync.gistId) {
+    parts.push('token 已填好，点「连接」即可');
+  } else {
+    parts.push('上次同步：' + (sync.lastSync ? new Date(sync.lastSync).toLocaleString('zh-CN') : '尚未'));
+    if (sync.user) parts.push('账号：' + esc(sync.user));
+    parts.push('<a href="https://gist.github.com/' + encodeURIComponent(sync.user || '') + '/' +
+      encodeURIComponent(sync.gistId) + '" target="_blank" rel="noopener">查看云端数据</a>');
+  }
+  msg.innerHTML = parts.join(' · ');
+}
+
+function initSyncFields() {
+  var t = document.getElementById('syToken');
+  if (t) t.value = sync.token || '';
+}
+
+async function doConnect() {
+  var raw = (document.getElementById('syToken').value || '').trim();
+  sync.token = raw.replace(/\s+/g, '');
+  sync.lastError = '';
+  saveSync();
+  if (!sync.token) { setSyncMsg('先把 GitHub token 粘到上面', 'err'); return; }
+
+  sync.busy = true; renderSync();
+  try {
+    await ghHandshake();
+    sync.busy = false;
+    setSyncMsg('连接成功，正在同步…', 'ok');
+    await syncNow(true);
+  } catch (e) {
+    sync.lastError = e.message || String(e);
+    setSyncMsg('连接失败：' + sync.lastError, 'err');
+  } finally {
+    sync.busy = false;
+    renderSync();
+  }
+}
+
+function doDisconnect() {
+  sync.token = ''; sync.gistId = ''; sync.user = '';
+  sync.lastSync = ''; sync.lastError = '';
+  saveSync();
+  var t = document.getElementById('syToken');
+  if (t) t.value = '';
+  renderSync();
+  setSyncMsg('已断开。本机进度保留，云端那份 Gist 也还在（可去 GitHub 自行删除）。');
+}
+
+function syncBind() {
+  var g = function (id) { return document.getElementById(id); };
+  if (g('btnConnect')) g('btnConnect').addEventListener('click', doConnect);
+  if (g('btnSyncNow')) g('btnSyncNow').addEventListener('click', function () { syncNow(false); });
+  if (g('btnForcePush')) g('btnForcePush').addEventListener('click', forcePush);
+  if (g('btnForcePull')) g('btnForcePull').addEventListener('click', forcePull);
+  if (g('btnDisconnect')) g('btnDisconnect').addEventListener('click', doDisconnect);
+  if (g('syToken')) g('syToken').addEventListener('change', function () {
+    sync.token = (this.value || '').trim().replace(/\s+/g, '');
+    saveSync(); renderSync();
+  });
+}
+
+/* ---------------- 绑定 ---------------- */
+function bind() {
+  document.getElementById('btnExport').addEventListener('click', exportJSON);
+  document.getElementById('btnImport').addEventListener('click', function () { document.getElementById('fileInput').click(); });
+  document.getElementById('fileInput').addEventListener('change', function (e) {
+    if (e.target.files && e.target.files[0]) importJSON(e.target.files[0]);
+    e.target.value = '';
+  });
+  document.getElementById('btnAddLog').addEventListener('click', addLog);
+  document.getElementById('btnExportCsv').addEventListener('click', exportCSV);
+  document.getElementById('btnCopy').addEventListener('click', copyJSON);
+  document.getElementById('btnPrint').addEventListener('click', function () { window.print(); });
+  document.getElementById('btnReset').addEventListener('click', function () {
+    if (confirm('确定清空所有进度、日志和备注吗？此操作不可撤销。\n建议先「导出」做一次备份。')) {
+      state.done = {}; state.notes = {}; state.logs = [];
+      save(); renderAll();
+    }
+  });
+  document.getElementById('btnTheme').addEventListener('click', function () {
+    var order = ['auto', 'light', 'dark'];
+    var i = order.indexOf(state.theme || 'auto');
+    state.theme = order[(i + 1) % order.length];
+    applyTheme(); save();
+    this.textContent = state.theme === 'auto' ? '主题' : (state.theme === 'light' ? '浅色' : '深色');
+  });
+  document.getElementById('setStart').addEventListener('change', function () { state.startDate = this.value; save(); });
+  document.getElementById('setWeekly').addEventListener('input', function () {
+    state.weeklyHours = Math.max(1, Number(this.value) || 5); saveSoon(); renderHero(); renderChips(); renderStages();
+  });
+  document.getElementById('setName').addEventListener('input', function () { state.name = this.value; saveSoon(); renderHero(); });
+  document.getElementById('lgDate').value = todayISO();
+  var sel = document.getElementById('lgStage');
+  sel.innerHTML = STAGES.map(function (s) { return '<option value="' + s.id + '">' + esc(s.name) + '</option>'; }).join('');
+}
+
+/* ---------------- 启动 ---------------- */
+(function init() {
+  var had = load();
+  loadSync();
+  applyTheme();
+  if (!had) {
+    // 首次打开：展开当前应学的阶段
+    state.open = {}; state.open[STAGES[0].id] = true;
+    state.savedAt = new Date().toISOString();
+    save(true, true);
+  }
+  bind();
+  syncBind();
+  initSyncFields();
+  renderAll();
+  renderSync();
+  var btn = document.getElementById('btnTheme');
+  if (btn) btn.textContent = state.theme === 'auto' ? '主题' : (state.theme === 'light' ? '浅色' : '深色');
+
+  // 打开页面就同步一次（已配置且已登录时）
+  if (syncConnected()) setTimeout(function () { syncNow(true); }, 800);
+
+  // 关页面 / 切到后台时落盘，但不改时间戳（避免把本机误标成"更新"）
+  window.addEventListener('beforeunload', function () { save(true, true); });
+  document.addEventListener('visibilitychange', function () {
+    if (document.hidden) save(true, true);
+    else if (syncConnected()) syncNow(true);
+  });
+  window.addEventListener('online', function () {
+    if (syncConnected()) syncNow(true);
+  });
+})();
+</script>
+</body>
+</html>
